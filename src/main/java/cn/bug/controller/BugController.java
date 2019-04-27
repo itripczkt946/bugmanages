@@ -39,6 +39,9 @@ public class BugController {
         return "add";
     }
 
+    @RequestMapping("/test")
+    public void test(){}
+
     @RequestMapping("/saveAdd")
     public String saveAdd(BugDetail bugDetail) {
         int result = bugService.addBug(bugDetail);
