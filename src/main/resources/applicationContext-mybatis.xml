@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/aop
+      http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+      http://www.springframework.org/schema/mvc
+      http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+      http://www.springframework.org/schema/beans
+      http://www.springframework.org/schema/beans/spring-beans.xsd
+      http://www.springframework.org/schema/tx
+      http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+      http://www.springframework.org/schema/context
+      http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+    <!--5、引用database.properties文件-->
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:database.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--4、创建dataSource数据源对象-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.usrename}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!--3、创建SqlSessionFactoryBean实例对象-->
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--1、引入数据源对象-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--2、引入mybatis配置文件的路径-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+        <!--3、初始化Mapping映射文件-->
+        <property name="mapperLocations">
+            <list>
+                <value>classpath:cn/bug/dao/**/*.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--2、简化dao层的配置， 添加对MapperScannerConfig的配置-->
+    <!--好处：1. 为cn.bug.dao包中所有的接口创建接口实现类
+              2、为接口实现类注入所需要的SqlSessionFactoryBean实例对象-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="cn.bug.dao"/>
+    </bean>
+
+    <!--1、让spring自动cn.bug.service,cn.bug.dao下去描述包下的所有类，让类中标注的注解生效(简化service层的配置)-->
+    <context:component-scan base-package="cn.bug.service,cn.bug.dao"/>
+
+</beans>

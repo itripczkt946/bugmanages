@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.bug.dao.BugMapper">
+
+    <!--用于查询所有的bug项目-->
+    <select id="queryAllBugPro" resultType="BugProject">
+        SELECT `id`,`name` FROM `bug_project`
+    </select>
+
+    <!--根据项目编号查询bug项目的详情列表信息(按报告时间降序排列)。-->
+    <select id="queryAllBugList" resultType="BugDetail">
+        SELECT d.id,d.`projectId`,
+               CASE WHEN d.`severity` = 10 THEN '文字错误'
+                    WHEN d.`severity` = 20 THEN '次要错误'
+                    WHEN d.`severity` = 30 THEN '严重错误'
+                   END severity	,
+               d.`title`,d.`reportUser`,d.`createDate`
+        FROM `bug_detail` d LEFT JOIN `bug_project` p
+        ON d.`projectId` = p.`id`
+        <where>
+            <if test="projectId != null and projectId != 0">
+                /*将项目编号作为查询条件*/
+                p.`id` = #{projectId}
+            </if>
+        </where>
+        ORDER BY d.`createDate` DESC
+    </select>
+
+    <insert id="addBug" parameterType="BugDetail">
+        INSERT INTO `bugmanage`.`bug_detail`
+           (`projectId`,
+            `severity`,
+            `title`,
+            `reportUser`,
+            `createDate`)
+        VALUES (   #{projectId},
+                   #{severity},
+                   #{title},
+                   #{reportUser},
+                   #{createDate})
+    </insert>
+</mapper>
